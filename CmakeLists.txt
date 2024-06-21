@@ -1,0 +1,35 @@
+cmake_minimum_required(VERSION 3.14)
+
+project(download_and_exec_project)
+
+enable_language(CXX)
+
+find_package(CURL REQUIRED)
+
+file(GLOB_RECURSE PROJECT_SOURCE RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+	src/*)
+
+add_executable(${PROJECT_NAME} src/main.cpp ${PROJECT_SOURCE})
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+	${CMAKE_CURRENT_SOURCE_DIR}/src
+	libcurl::libcurl)
+
+set_target_properties( ${PROJECT_NAME} PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED YES
+        CXX_EXTENSIONS NO
+        )
+
+target_link_libraries (${PROJECT_NAME} PRIVATE
+	CURL::libcurl
+	)
+
+# Copying the executable to a run directory
+
+set(EXE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/run)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${EXE_OUTPUT_DIRECTORY}
+    COMMENT "Copying executable to ${EXE_OUTPUT_DIRECTORY}"
+)
